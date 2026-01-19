@@ -18,6 +18,9 @@ class Boid {
   Vector get_pos() const;
   Vector get_vel() const;
 
+  bool operator==(const Boid&) const;
+
+
   // forza che allontana dai boids vicini
   Vector separation(const std::vector<Boid>& boids, float s, float d_s) const;
   // il boids si deve allineare con quelli vicini
