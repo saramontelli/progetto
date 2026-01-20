@@ -37,6 +37,7 @@ Vector Boid::separation(const std::vector<Boid>& near, float s,
 }
 
 Vector Boid::alignment(const std::vector<Boid>& near, float a) const {
+  if (near.empty()) return Vector(0.f, 0.f);  // evita che si divida per zero
   Vector v_2{0.f, 0.f};
   for (auto& boid : near) {
     v_2 += boid.get_vel();
@@ -46,6 +47,8 @@ Vector Boid::alignment(const std::vector<Boid>& near, float a) const {
 }
 
 Vector Boid::cohesion(const std::vector<Boid>& near, float c) const {
+  if (near.empty()) return Vector(0.f, 0.f);
+
   Vector x_c{0.f, 0.f};
   Vector v_3{0.f, 0.f};
 
