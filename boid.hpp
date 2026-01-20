@@ -8,8 +8,8 @@ namespace math {
 
 class Boid {
  private:
-  Vector vel_;
   Vector pos_;
+  Vector vel_;
 
  public:
   Boid();
