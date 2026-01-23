@@ -11,6 +11,10 @@ Boid::Boid(Vector pos, Vector vel) : pos_(pos), vel_(vel) {}
 Vector Boid::get_pos() const { return pos_; }
 Vector Boid::get_vel() const { return vel_; }
 
+void Boid::set_vel(const Vector& v) {
+  vel_ = v;
+}
+
 bool Boid::operator==(const Boid& boid) const { return pos_ == boid.get_pos(); }
 
 std::vector<Boid> Boid::get_neighbors(const std::vector<Boid>& all_boids,

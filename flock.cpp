@@ -52,6 +52,12 @@ void Flock::flock_update(float delta_t) {
     }
 
     boid.change_vel(delta_v);
+
+    float speed = boid.get_vel().norm();
+    if (speed > vel_max) {
+      boid.set_vel(boid.get_vel()* (vel_max / speed));
+    }
+
     boid.change_pos(boid.get_vel() * delta_t);
   }
 }

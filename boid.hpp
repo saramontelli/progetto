@@ -17,6 +17,7 @@ class Boid {
 
   Vector get_pos() const;
   Vector get_vel() const;
+  void set_vel(const Vector& v);
 
   bool operator==(const Boid&) const;
 
