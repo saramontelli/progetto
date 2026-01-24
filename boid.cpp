@@ -11,10 +11,6 @@ Boid::Boid(Vector pos, Vector vel) : pos_(pos), vel_(vel) {}
 Vector Boid::get_pos() const { return pos_; }
 Vector Boid::get_vel() const { return vel_; }
 
-void Boid::set_vel(const Vector& v) {
-  vel_ = v;
-}
-
 bool Boid::operator==(const Boid& boid) const { return pos_ == boid.get_pos(); }
 
 std::vector<Boid> Boid::get_neighbors(const std::vector<Boid>& all_boids,
@@ -46,7 +42,7 @@ Vector Boid::alignment(const std::vector<Boid>& near, float a) const {
   for (auto& boid : near) {
     v_2 += boid.get_vel();
   }
-  v_2 = v_2 * (1.0f / near.size());  // media delle velcità
+  v_2 = v_2 * (1.0f / static_cast<float>(near.size()));  // media delle velcità
   return (v_2 - this->get_vel()) * a;
 }
 
@@ -60,9 +56,18 @@ Vector Boid::cohesion(const std::vector<Boid>& near, float c) const {
     x_c += boid.get_pos();
   }
 
-  x_c = x_c * (1.f / near.size());
+  x_c = x_c * (1.f / static_cast<float>(near.size()));
   v_3 = (x_c - this->get_pos()) * c;
   return v_3;
+}
+void Boid::speed_limit(float vel_max, float vel_min) {
+  float speed = this->get_vel().norm();
+  if (speed > vel_max) {
+    vel_ = vel_ * (vel_max / speed);
+  };
+  if (speed < vel_min) {
+    vel_ = vel_ * (vel_min / speed);
+  }
 }
 
 void Boid::change_pos(const Vector& d_x) { pos_ += d_x; }

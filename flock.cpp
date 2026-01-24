@@ -52,12 +52,7 @@ void Flock::flock_update(float delta_t) {
     }
 
     boid.change_vel(delta_v);
-
-    float speed = boid.get_vel().norm();
-    if (speed > vel_max) {
-      boid.set_vel(boid.get_vel()* (vel_max / speed));
-    }
-
+    boid.speed_limit(vel_max, vel_min);
     boid.change_pos(boid.get_vel() * delta_t);
   }
 }
@@ -85,9 +80,9 @@ FlockStats Flock::state() const {
     }
   }
 
-  stats.avg_distance = sum_dist / n_pairs;
+  stats.avg_distance = sum_dist / static_cast<float>(n_pairs);
   float var_dist =
-      sum_dist2 / n_pairs -
+      sum_dist2 / static_cast<float>(n_pairs) -
       stats.avg_distance * stats.avg_distance;  // calcolo la varianza
   stats.dev_distance = std::sqrt(var_dist);
 
@@ -100,8 +95,9 @@ FlockStats Flock::state() const {
     sum_vel += v;
     sum_vel2 += v * v;
   }
-  stats.avg_velocity = sum_vel / N;
-  float var_vel = sum_vel2 / N - stats.avg_velocity * stats.avg_velocity;
+  stats.avg_velocity = sum_vel / static_cast<float>(N);
+  float var_vel = sum_vel2 / static_cast<float>(N) -
+                  stats.avg_velocity * stats.avg_velocity;
   stats.dev_velocity = std::sqrt(var_vel);
 
   return stats;

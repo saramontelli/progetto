@@ -23,34 +23,34 @@ int main() {
     return 1;
   }
   std::cout << "Insert the separation parameter (values permitted are between "
-               "[0.3,0.5]): \n";
+               "[0.05,0.3]): \n";
   float separation_parameter;
   std::cin >> separation_parameter;
-  if (separation_parameter < 0.3f || separation_parameter > 0.5f) {
+  if (separation_parameter < 0.05f || separation_parameter > 0.3f) {
     std::cerr << "Error: separation parameter out of range. \n";
     return 1;
   }
   std::cout << "Insert the alignment parameter (values permitted are between "
-               "[0.3,0.5]): \n";
+               "[0.01,0.1]): \n";
   float alignment_parameter;
   std::cin >> alignment_parameter;
-  if (alignment_parameter < 0.3f || alignment_parameter > 0.5f) {
+  if (alignment_parameter < 0.01f || alignment_parameter > 0.1f) {
     std::cerr << "Error: alignment parameter out of range. \n";
     return 1;
   }
 
   std::cout << "Insert cohesion_parameter (values permitted are between "
-               "[0.1, 0.3]): \n";
+               "[0.005, 0.05]): \n";
   float cohesion_parameter;
   std::cin >> cohesion_parameter;
-  if (cohesion_parameter < 0.1f || cohesion_parameter > 0.3f) {
+  if (cohesion_parameter < 0.005f || cohesion_parameter > 0.05f) {
     std::cerr << "Error: cohesion parameter out of range. \n";
     return 1;
   }
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
-                    cohesion_parameter, 100.0f, 30.0f);
+                    cohesion_parameter, 30.0f, 5.0f);
 
   std::random_device rd;
   std::default_random_engine gen(rd());
