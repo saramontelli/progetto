@@ -6,24 +6,30 @@
 #include "flock.hpp"
 #include "vector.hpp"
 
+
 float to_degrees(float radians) { return radians * 180.f / 3.14159265f; }
 int main() {
+  std::cout << "Boid Simulation, instructions:\n";
+  std::cout << "1. Click B button to add a Boid.\n";
+  std::cout << "2. Click P button to add a predator.\n";
+  std::cout << "3. Finally, close the window to stop the simulation.\n";
+
   const float width = 1200.f;
   const float height = 800.f;
 
   std::cout << "Insert the closeness parameter (values permitted are between "
-               "[150,200]) : \n";
+               "[200,300]) : \n";
   float closeness_parameter;
   std::cin >> closeness_parameter;
-  if (closeness_parameter < 150.f || closeness_parameter > 200.f) {
+  if (closeness_parameter < 200.f || closeness_parameter > 300.f) {
     std::cerr << "Error: closeness parameter out of range. \n";
     return 1;
   }
   std::cout << "Insert the distance of separation (values permitted are "
-               "between [30,40]): \n";
+               "between [40,50]): \n";
   float distance_of_separation;
   std::cin >> distance_of_separation;
-  if (distance_of_separation < 30.f || distance_of_separation > 40.f) {
+  if (distance_of_separation < 40.f || distance_of_separation > 50.f) {
     std::cerr << "Error: distance of separation out of range. \n";
     return 1;
   }
@@ -36,19 +42,19 @@ int main() {
     return 1;
   }
   std::cout << "Insert the alignment parameter (values permitted are between "
-               "[0.1,0.2]): \n";
+               "[0.3,0.7]): \n";
   float alignment_parameter;
   std::cin >> alignment_parameter;
-  if (alignment_parameter < 0.1f || alignment_parameter > 0.2f) {
+  if (alignment_parameter < 0.3f || alignment_parameter > 0.7f) {
     std::cerr << "Error: alignment parameter out of range. \n";
     return 1;
   }
 
   std::cout << "Insert cohesion_parameter (values permitted are between "
-               "[0.02, 0.05]): \n";
+               "[0.01, 0.04]): \n";
   float cohesion_parameter;
   std::cin >> cohesion_parameter;
-  if (cohesion_parameter < 0.02f || cohesion_parameter > 0.05f) {
+  if (cohesion_parameter < 0.01f || cohesion_parameter > 0.04f) {
     std::cerr << "Error: cohesion parameter out of range. \n";
     return 1;
   }
@@ -63,7 +69,7 @@ int main() {
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
-                    cohesion_parameter, 300.0f, 100.0f);
+                    cohesion_parameter, 150.0f, 70.0f);
 
   std::random_device rd;
   std::default_random_engine gen(rd());
@@ -96,7 +102,8 @@ int main() {
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
   // 1. Inizializzazione Finestra
-  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Boids Simulation", sf::Style::Default, settings);
+  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Boids Simulation",
+                          sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
   // 2. Definizione della forma del Boid (Triangolo)
@@ -112,14 +119,36 @@ int main() {
   sf::ConvexShape predatorShape = boidShape;
   predatorShape.setFillColor(sf::Color::Red);
 
-  float delta_t = 0.05f;
+  sf::Clock clock;
   int step = 0;
   while (window.isOpen()) {
+    float delta_t = clock.restart().asSeconds();
+
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) window.close();
-    }
+      if (event.type == sf::Event::KeyPressed) {
+        math::Vector random_pos{x_dist(gen), y_dist(gen)};
 
+        math::Vector random_vel{vel_dist(gen), vel_dist(gen)};
+
+        if (event.key.code == sf::Keyboard::B) {
+          math::Boid newBoid(random_pos, random_vel, false);
+          flock.add_boids(newBoid);
+          std::cout << "Added new boid" << "\n";
+        }
+
+        if (event.key.code == sf::Keyboard::P) {
+          if (flock.get_predators().size() < 5) {
+            flock.add_boids(math::Boid(random_pos, random_vel, true));
+            std::cout << "Added new predator. Predators number: "
+                      << flock.get_predators().size() << "/5" << std::endl;
+          } else {
+            std::cout << "Maximum number of predator reached!" << std::endl;
+          }
+        }
+      }
+    }
     flock.flock_update(delta_t, width, height);
     flock.predators_update(delta_t, width, height);
 
