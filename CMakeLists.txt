@@ -39,7 +39,7 @@ find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 # sostituire "progetto" con il nome del proprio eseguibile e i file sorgente con i propri (con nomi sensati!)
 add_executable(progetto main.cpp vector.cpp boid.cpp flock.cpp) 
 # nel caso si usi SFML. analogamente per eventuali altre librerie
-#target_link_libraries(progetto PRIVATE sfml-graphics) <--
+target_link_libraries(progetto PRIVATE sfml-graphics) 
 
 # aggiungere eventuali altri eseguibili
 
