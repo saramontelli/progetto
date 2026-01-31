@@ -17,6 +17,7 @@ int main() {
   const float width = 1200.f;
   const float height = 800.f;
 
+  std::cout << "Insert the following parameters: \n";
   std::cout << "Insert the closeness parameter (values permitted are between "
                "[200,300]) : \n";
   float closeness_parameter;
@@ -102,7 +103,7 @@ int main() {
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
   // 1. Inizializzazione Finestra
-  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Boids Simulation",
+  sf::RenderWindow window(sf::VideoMode(1000, 800), "Boids Simulation",
                           sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
