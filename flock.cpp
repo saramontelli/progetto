@@ -16,48 +16,140 @@ Flock::Flock(const float d, const float ds, const float s, const float a,
       c_(c),
       vel_max(max_speed),
       vel_min(min_speed) {};
-void Flock::add_boids(const Boid& new_boid) { flock_.push_back(new_boid); }
+
+void Flock::add_boids(const Boid& new_boid) {
+  if (new_boid.get_predator()) {
+    predators_.push_back(new_boid);
+  } else {
+    flock_.push_back(new_boid);
+  }
+}
 
 const std::vector<Boid>& Flock::get_flock() const { return flock_; };
 
-Vector Flock::flock_separation(const Boid& current_boid) const {
-  // trovo i vicini
-  std::vector<Boid> neighbors = current_boid.get_neighbors(flock_, d_);
-  // calcolo la separazione
-  return current_boid.separation(neighbors, s_, d_s_);
+const std::vector<Boid>& Flock::get_predators() const { return predators_; }
+
+Vector Flock::flock_separation(const Boid& current_boid,
+                               const std::vector<Boid>& flock_neighbors,
+                               float x_max, float y_max) const {
+  return current_boid.separation(flock_neighbors, s_, d_s_, x_max, y_max);
 };
 
-Vector Flock::flock_alignment(const Boid& current_boid) const {
-  std::vector<Boid> neighbors = current_boid.get_neighbors(flock_, d_);
-  return current_boid.alignment(neighbors, a_);
+Vector Flock::flock_alignment(const Boid& current_boid,
+                              const std::vector<Boid>& flock_neighbors) const {
+  return current_boid.alignment(flock_neighbors, a_);
 };
 
-Vector Flock::flock_cohesion(const Boid& current_boid) const {
-  std::vector<Boid> neighbors = current_boid.get_neighbors(flock_, d_);
-  if (neighbors.empty()) {
+Vector Flock::flock_cohesion(const Boid& current_boid,
+                             const std::vector<Boid>& flock_neighbors,
+                             float x_max, float y_max) const {
+  if (flock_neighbors.empty()) {
     return Vector(0.f, 0.f);
   }
-  return current_boid.cohesion(neighbors, c_);
+  return current_boid.cohesion(flock_neighbors, c_, x_max, y_max);
 };
 
-void Flock::flock_update(float delta_t) {
-  for (auto& boid : flock_) {
-    std::vector<Boid> neighbors = boid.get_neighbors(flock_, d_);
+Vector Flock::avoid_predators(const Boid& boid, float x_max,
+                              float y_max) const {
+  Vector steer(0.f, 0.f);  // forza totale iniziale
+  Vector position = boid.get_pos();
 
-    Vector delta_v(0.f, 0.f);
-    if (!neighbors.empty()) {
-      delta_v += flock_separation(boid);
-      delta_v += flock_alignment(boid);
-      delta_v += flock_cohesion(boid);
+  for (const auto& predator : predators_) {
+    float dist = position.distance(predator.get_pos(), x_max, y_max);
+    if (dist > 0.f && dist < d_) {
+      float dx = position.get_x() - predator.get_pos().get_x();
+      float dy = position.get_y() - predator.get_pos().get_y();
+
+      if (dx > x_max / 2)
+        dx -= x_max;
+      else if (dx < -x_max / 2)
+        dx += x_max;
+      if (dy > y_max / 2)
+        dy -= y_max;
+      else if (dy < -y_max / 2)
+        dy += y_max;
+
+      float factor = (dist <= d_s_) ? 25.f : 15.f;
+      steer += Vector(dx, dy) * (1.f / dist) * factor;
     }
+  }
+  return steer;
+}
+
+Vector Flock::chase_prey(const Boid& predator,
+                         const std::vector<Boid>& neighbors, float x_max,
+                         float y_max) {
+  if (neighbors.empty()) return Vector(0.f, 0.f);
+  Vector predator_pos = predator.get_pos();
+  size_t closest_idx = 0;
+  float min_dist = neighbors[0].get_pos().distance(predator_pos, x_max, y_max);
+
+  for (size_t i = 1; i < neighbors.size(); ++i) {
+    float dist = neighbors[i].get_pos().distance(predator_pos, x_max, y_max);
+    if (dist < min_dist) {
+      min_dist = dist;
+      closest_idx = i;
+    }
+  }
+  float dx = neighbors[closest_idx].get_pos().get_x() - predator_pos.get_x();
+  float dy = neighbors[closest_idx].get_pos().get_y() - predator_pos.get_y();
+  if (dx > x_max / 2)
+    dx -= x_max;
+  else if (dx < -x_max / 2)
+    dx += x_max;
+  if (dy > y_max / 2)
+    dy -= y_max;
+  else if (dy < -y_max / 2)
+    dy += y_max;
+
+  Vector direction(dx, dy);
+  float dist = direction.norm();
+  if (dist > 0.f) return direction * (1.f / dist) * 10.f;
+  return Vector(0.f, 0.f);
+}
+
+void Flock::predators_update(float delta_t, float x_max, float y_max) {
+  for (auto& boid : predators_) {
+    std::vector<Boid> flock_neighbors =
+        boid.get_neighbors(flock_, d_, x_max, y_max);
+    std::vector<Boid> predators_neighbors =
+        boid.get_neighbors(predators_, d_, x_max, y_max);
+
+    Vector delta_v = flock_separation(boid, predators_neighbors, x_max, y_max) +
+                     chase_prey(boid, flock_neighbors, x_max, y_max);
 
     boid.change_vel(delta_v);
     boid.speed_limit(vel_max, vel_min);
     boid.change_pos(boid.get_vel() * delta_t);
+    boid.wrap_position(x_max, y_max);
   }
 }
 
-FlockStats Flock::state() const {
+void Flock::flock_update(float delta_t, float x_max, float y_max) {
+  std::vector<Boid> next_flock = flock_;
+
+  for (size_t i = 0; i < flock_.size(); ++i) {
+    std::vector<Boid> flock_neighbors =
+        flock_[i].get_neighbors(flock_, d_, x_max, y_max);
+
+    Vector delta_v(0.f, 0.f);
+    if (!flock_neighbors.empty()) {
+      delta_v += flock_[i].separation(flock_neighbors, s_, d_s_, x_max, y_max);
+      delta_v += flock_[i].alignment(flock_neighbors, a_);
+      delta_v += flock_[i].cohesion(flock_neighbors, c_, x_max, y_max);
+    }
+
+    delta_v += avoid_predators(flock_[i], x_max, y_max);
+
+    next_flock[i].change_vel(delta_v);
+    next_flock[i].speed_limit(vel_max, vel_min);
+    next_flock[i].change_pos(next_flock[i].get_vel() * delta_t);
+    next_flock[i].wrap_position(x_max, y_max);
+  }
+  flock_ = next_flock;
+}
+
+FlockStats Flock::state(float x_max, float y_max) const {
   FlockStats stats{0.f, 0.f, 0.f, 0.f};
 
   const size_t N = flock_.size();
@@ -72,7 +164,7 @@ FlockStats Flock::state() const {
 
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = i + 1; j < N; ++j) {
-      float d = flock_[i].get_pos().distance(flock_[j].get_pos());
+      float d = flock_[i].get_pos().distance(flock_[j].get_pos(), x_max, y_max);
 
       sum_dist += d;
       sum_dist2 += d * d;

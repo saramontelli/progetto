@@ -37,7 +37,7 @@ class Vector {
   // norma
   float norm() const;
   // distanza
-  float distance(const Vector& v) const;
+  float distance(const Vector& v, float x_max_, float y_max_) const;
 };
 
 }  // namespace math

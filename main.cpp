@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <random>
 
@@ -5,57 +6,70 @@
 #include "flock.hpp"
 #include "vector.hpp"
 
+float to_degrees(float radians) { return radians * 180.f / 3.14159265f; }
 int main() {
+  const float width = 1200.f;
+  const float height = 800.f;
+
   std::cout << "Insert the closeness parameter (values permitted are between "
-               "[60,100]) : \n";
+               "[150,200]) : \n";
   float closeness_parameter;
   std::cin >> closeness_parameter;
-  if (closeness_parameter < 60.f || closeness_parameter > 100.f) {
+  if (closeness_parameter < 150.f || closeness_parameter > 200.f) {
     std::cerr << "Error: closeness parameter out of range. \n";
     return 1;
   }
   std::cout << "Insert the distance of separation (values permitted are "
-               "between [15,30]): \n";
+               "between [30,40]): \n";
   float distance_of_separation;
   std::cin >> distance_of_separation;
-  if (distance_of_separation < 15.f || distance_of_separation > 30.f) {
+  if (distance_of_separation < 30.f || distance_of_separation > 40.f) {
     std::cerr << "Error: distance of separation out of range. \n";
     return 1;
   }
   std::cout << "Insert the separation parameter (values permitted are between "
-               "[0.05,0.3]): \n";
+               "[1.0, 2.0]): \n";
   float separation_parameter;
   std::cin >> separation_parameter;
-  if (separation_parameter < 0.05f || separation_parameter > 0.3f) {
+  if (separation_parameter < 1.f || separation_parameter > 2.f) {
     std::cerr << "Error: separation parameter out of range. \n";
     return 1;
   }
   std::cout << "Insert the alignment parameter (values permitted are between "
-               "[0.01,0.1]): \n";
+               "[0.1,0.2]): \n";
   float alignment_parameter;
   std::cin >> alignment_parameter;
-  if (alignment_parameter < 0.01f || alignment_parameter > 0.1f) {
+  if (alignment_parameter < 0.1f || alignment_parameter > 0.2f) {
     std::cerr << "Error: alignment parameter out of range. \n";
     return 1;
   }
 
   std::cout << "Insert cohesion_parameter (values permitted are between "
-               "[0.005, 0.05]): \n";
+               "[0.02, 0.05]): \n";
   float cohesion_parameter;
   std::cin >> cohesion_parameter;
-  if (cohesion_parameter < 0.005f || cohesion_parameter > 0.05f) {
+  if (cohesion_parameter < 0.02f || cohesion_parameter > 0.05f) {
     std::cerr << "Error: cohesion parameter out of range. \n";
+    return 1;
+  }
+  std::cout << "Insert number of predators (values permitted are between 0 and "
+               "5): \n";
+  int num_predators;
+  std::cin >> num_predators;
+  if (num_predators < 0 || num_predators > 5) {
+    std::cerr << "Error: predators number out of range. \n";
     return 1;
   }
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
-                    cohesion_parameter, 30.0f, 5.0f);
+                    cohesion_parameter, 300.0f, 100.0f);
 
   std::random_device rd;
   std::default_random_engine gen(rd());
-  std::uniform_real_distribution<float> pos_dist(0.f, 1000.0f);
-  std::uniform_real_distribution<float> vel_dist(-5.0f, 5.0f);
+  std::uniform_real_distribution<float> x_dist(0.f, width);
+  std::uniform_real_distribution<float> y_dist(0.f, height);
+  std::uniform_real_distribution<float> vel_dist(-150.0f, 150.0f);
 
   int N_boids;
   std::cout << "Insert the number of boids: ";
@@ -66,25 +80,80 @@ int main() {
   }
 
   for (int i = 0; i < N_boids; ++i) {
-    math::Vector position{pos_dist(gen), pos_dist(gen)};
-    math::Vector velocity{vel_dist(gen), vel_dist(gen)};
-    math::Boid boid(position, velocity);
+    math::Vector pos_b{x_dist(gen), y_dist(gen)};
+    math::Vector vel_b{vel_dist(gen), vel_dist(gen)};
+    math::Boid boid(pos_b, vel_b, false);
     flock.add_boids(boid);
   }
 
-  float delta_t = 0.01f;
-  int N_steps = 1000;
+  for (int i = 0; i < num_predators; ++i) {
+    math::Vector pos_p(x_dist(gen), y_dist(gen));
+    math::Vector vel_p(vel_dist(gen), vel_dist(gen));
+    math::Boid predator(pos_p, vel_p, true);
+    flock.add_boids(predator);
+  }
 
-  for (int step = 0; step < N_steps; ++step) {
-    flock.flock_update(delta_t);
-    if (step % 50 == 0) {
-      auto stats = flock.state();
-      std::cout << "Step" << step << ": avg_distance = " << stats.avg_distance
-                << "+/-" << stats.dev_distance
-                << ", avg_velocity = " << stats.avg_velocity << "+/-"
+  sf::ContextSettings settings;
+  settings.antialiasingLevel = 8;
+  // 1. Inizializzazione Finestra
+  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Boids Simulation", sf::Style::Default, settings);
+  window.setFramerateLimit(60);
+
+  // 2. Definizione della forma del Boid (Triangolo)
+  sf::ConvexShape boidShape;
+  boidShape.setPointCount(3);
+  boidShape.setPoint(0, sf::Vector2f(20.f, 0.f));     // punta
+  boidShape.setPoint(1, sf::Vector2f(-10.f, 10.f));   // base sinistra
+  boidShape.setPoint(2, sf::Vector2f(-10.f, -10.f));  // base destra
+
+  boidShape.setScale(0.5f, 0.5f);
+  boidShape.setFillColor(sf::Color::Cyan);
+
+  sf::ConvexShape predatorShape = boidShape;
+  predatorShape.setFillColor(sf::Color::Red);
+
+  float delta_t = 0.05f;
+  int step = 0;
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+    }
+
+    flock.flock_update(delta_t, width, height);
+    flock.predators_update(delta_t, width, height);
+
+    if (step % 100 == 0) {  // Stampa ogni 100 frame per non intasare la console
+      auto stats = flock.state(width, height);
+      std::cout << "Step " << step << ": avg_distance = " << stats.avg_distance
+                << " +/- " << stats.dev_distance
+                << ", avg_velocity = " << stats.avg_velocity << " +/- "
                 << stats.dev_velocity << "\n";
     }
+    step++;
+    window.clear(sf::Color(30, 30, 30));  // Sfondo scuro
+
+    for (const auto& b : flock.get_flock()) {
+      boidShape.setPosition(b.get_pos().get_x(), b.get_pos().get_y());
+
+      float angle = std::atan2(b.get_vel().get_y(), b.get_vel().get_x());
+      boidShape.setRotation(to_degrees(angle));
+
+      window.draw(boidShape);
+    }
+
+    for (const auto& p : flock.get_predators()) {
+      predatorShape.setPosition(p.get_pos().get_x(), p.get_pos().get_y());
+
+      float angle = std::atan2(p.get_vel().get_y(), p.get_vel().get_x());
+      predatorShape.setRotation(to_degrees(angle));
+
+      window.draw(predatorShape);
+    }
+
+    window.display();
   }
+
   std::cout << "Simulation finished. \n";
   return 0;
 }

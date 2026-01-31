@@ -56,7 +56,13 @@ float Vector::dot(const Vector& w) const {
 
 float Vector::norm() const { return std::sqrt(x_ * x_ + y_ * y_); }
 
-float Vector::distance(const Vector& w) const {
-  return std::sqrt((x_ - w.x_) * (x_ - w.x_) + (y_ - w.y_) * (y_ - w.y_));
-};
+float Vector::distance(const Vector& w, float x_max, float y_max) const {
+  float dx = std::abs(x_ - w.x_);
+  float dy = std::abs(y_ - w.y_);
+
+  if (dx > x_max / 2.0f) dx = x_max - dx;
+  if (dy > y_max / 2.0f) dy = y_max - dy;
+
+  return std::sqrt(dx * dx + dy * dy);
+}
 }  // namespace math
