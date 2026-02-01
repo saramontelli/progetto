@@ -167,24 +167,91 @@ TEST_CASE("Testing norm") {
     CHECK(w.norm() == doctest::Approx(0.0).epsilon(0.1));
   }
 }
+TEST_CASE("testing shortest_delta") {
+  const float x_max = 10.0f;
+  const float y_max = 10.0f;
 
-TEST_CASE("testing distance") {
   SUBCASE("Positive components") {
     const math::Vector w{1.1f, 1.4f};
     const math::Vector t{3.9f, 0.4f};
 
-    CHECK(w.distance(t) == doctest::Approx(3.0).epsilon(0.1));
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(2.8).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(-1.0).epsilon(0.1));
+  }
+
+  SUBCASE("Negative components") {
+    const math::Vector w{-1.8f, -0.6f};
+    const math::Vector t{-5.7f, -0.4f};
+
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(-3.9).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(0.2).epsilon(0.1));
+  }
+
+  SUBCASE("Wrap-around X") {
+    const math::Vector w{9.0f, 1.0f};
+    const math::Vector t{1.0f, 1.0f};
+
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(2.0).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(0.0).epsilon(0.1));
+  }
+
+  SUBCASE("Wrap-around Y") {
+    const math::Vector w{1.0f, 9.5f};
+    const math::Vector t{1.0f, 0.5f};
+
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(0.0).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(1.0).epsilon(0.1));
+  }
+
+  SUBCASE("Diagonal wrap-around") {
+    const math::Vector w{9.5f, 9.5f};
+    const math::Vector t{0.5f, 0.2f};
+
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(1.0).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(0.7).epsilon(0.1)); 
+  }
+
+  SUBCASE("Zero delta") {
+    const math::Vector w{2.3f, -4.1f};
+    const math::Vector t{2.3f, -4.1f};
+
+    const math::Vector d = w.shortest_delta(t, x_max, y_max);
+    CHECK(d.get_x() == doctest::Approx(0.0).epsilon(0.1));
+    CHECK(d.get_y() == doctest::Approx(0.0).epsilon(0.1));
+  }
+}
+
+
+TEST_CASE("testing distance") {
+  const float x_max = 10.f;
+  const float y_max = 10.f;
+
+  SUBCASE("Positive components") {
+    const math::Vector w{1.1f, 1.4f};
+    const math::Vector t{3.9f, 0.4f};
+
+    CHECK(w.distance(t, x_max, y_max) == doctest::Approx(2.97).epsilon(0.01));
   }
   SUBCASE("Negative components") {
     const math::Vector w{-1.8f, -0.6f};
     const math::Vector t{-5.7f, -0.4f};
 
-    CHECK(w.distance(t) == doctest::Approx(3.9).epsilon(0.1));
+    CHECK(w.distance(t, x_max, y_max) == doctest::Approx(3.91).epsilon(0.01));
   }
   SUBCASE("Null components") {
     const math::Vector w{0.0f, 1.1f};
     const math::Vector t{3.2f, 0.0f};
+    CHECK(w.distance(t, x_max, y_max) == doctest::Approx(3.38).epsilon(0.01));
+  }
 
-    CHECK(w.distance(t) == doctest::Approx(3.4).epsilon(0.1));
+  SUBCASE("Testing wrap-around distance") {
+    const math::Vector w{9.0f, 1.0f};
+    const math::Vector t{1.0f, 1.0f};
+    CHECK(w.distance(t, x_max, y_max) == doctest::Approx(2.0).epsilon(0.01));
   }
 }
