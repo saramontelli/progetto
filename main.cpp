@@ -35,10 +35,10 @@ int main() {
     return 1;
   }
   std::cout << "Insert the separation parameter (values permitted are between "
-               "[1.0, 2.0]): \n";
+               "[0.6, 1.4]): \n";
   float separation_parameter;
   std::cin >> separation_parameter;
-  if (separation_parameter < 1.f || separation_parameter > 2.f) {
+  if (separation_parameter < 0.6f || separation_parameter > 1.4f) {
     std::cerr << "Error: separation parameter out of range. \n";
     return 1;
   }
@@ -70,13 +70,13 @@ int main() {
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
-                    cohesion_parameter, 150.0f, 70.0f);
+                    cohesion_parameter, 120.0f, 50.0f);
 
   std::random_device rd;
   std::default_random_engine gen(rd());
   std::uniform_real_distribution<float> x_dist(0.f, width);
   std::uniform_real_distribution<float> y_dist(0.f, height);
-  std::uniform_real_distribution<float> vel_dist(-150.0f, 150.0f);
+  std::uniform_real_distribution<float> vel_dist(-100.0f, 100.0f);
 
   int N_boids;
   std::cout << "Insert the number of boids: ";
@@ -102,17 +102,16 @@ int main() {
 
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
-  // 1. Inizializzazione Finestra
-  sf::RenderWindow window(sf::VideoMode(1000, 800), "Boids Simulation",
+  
+  sf::RenderWindow window(sf::VideoMode(width, height), "Boids Simulation",
                           sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
-  // 2. Definizione della forma del Boid (Triangolo)
   sf::ConvexShape boidShape;
   boidShape.setPointCount(3);
-  boidShape.setPoint(0, sf::Vector2f(20.f, 0.f));     // punta
-  boidShape.setPoint(1, sf::Vector2f(-10.f, 10.f));   // base sinistra
-  boidShape.setPoint(2, sf::Vector2f(-10.f, -10.f));  // base destra
+  boidShape.setPoint(0, sf::Vector2f(20.f, 0.f));     
+  boidShape.setPoint(1, sf::Vector2f(-10.f, 10.f));   
+  boidShape.setPoint(2, sf::Vector2f(-10.f, -10.f));  
 
   boidShape.setScale(0.5f, 0.5f);
   boidShape.setFillColor(sf::Color::Cyan);
@@ -153,7 +152,7 @@ int main() {
     flock.flock_update(delta_t, width, height);
     flock.predators_update(delta_t, width, height);
 
-    if (step % 100 == 0) {  // Stampa ogni 100 frame per non intasare la console
+    if (step % 100 == 0) { 
       auto stats = flock.state(width, height);
       std::cout << "Step " << step << ": avg_distance = " << stats.avg_distance
                 << " +/- " << stats.dev_distance
@@ -161,7 +160,7 @@ int main() {
                 << stats.dev_velocity << "\n";
     }
     step++;
-    window.clear(sf::Color(30, 30, 30));  // Sfondo scuro
+    window.clear(sf::Color(30, 30, 30));
 
     for (const auto& b : flock.get_flock()) {
       boidShape.setPosition(b.get_pos().get_x(), b.get_pos().get_y());

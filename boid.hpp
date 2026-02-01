@@ -24,18 +24,19 @@ class Boid {
 
   bool operator==(const Boid&) const;
 
-  // forza che allontana dai boids vicini
-  Vector separation(const std::vector<Boid>& boids, float s, float d_s, float x_max, float y_max) const;
-  // il boids si deve allineare con quelli vicini
+  Vector separation(const std::vector<Boid>& boids, float s, float d_s,
+                    float x_max, float y_max) const;
+
   Vector alignment(const std::vector<Boid>& boids, float a) const;
-  // boid si muove verso il baricentro dei boids vicini
-  Vector cohesion(const std::vector<Boid>& boids, float c, float x_max, float y_max) const;
-  // boids nelle vicinanze
-  std::vector<Boid> get_neighbors(const std::vector<Boid>& all_boids,
-                                  float d, float x_max, float y_max) const;
+
+  Vector cohesion(const std::vector<Boid>& boids, float c, float x_max,
+                  float y_max) const;
+
+  std::vector<Boid> get_neighbors(const std::vector<Boid>& all_boids, float d,
+                                  float x_max, float y_max) const;
 
   void wrap_position(float x_max, float y_max);
-          
+
   void speed_limit(float max_speed, float min_speed);
   void change_vel(const Vector&);
   void change_pos(const Vector&);
