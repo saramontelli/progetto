@@ -6,7 +6,6 @@
 #include "flock.hpp"
 #include "vector.hpp"
 
-
 float to_degrees(float radians) { return radians * 180.f / 3.14159265f; }
 int main() {
   std::cout << "Boid Simulation, instructions:\n";
@@ -14,69 +13,69 @@ int main() {
   std::cout << "2. Click P button to add a predator.\n";
   std::cout << "3. Finally, close the window to stop the simulation.\n";
 
-  const float width = 1200.f;
-  const float height = 800.f;
+  //const float width = 1200.f;
+  //const float height = 800.f;
 
   std::cout << "Insert the following parameters: \n";
   std::cout << "Insert the closeness parameter (values permitted are between "
                "[200,300]) : \n";
   float closeness_parameter;
   std::cin >> closeness_parameter;
-  if (closeness_parameter < 200.f || closeness_parameter > 300.f) {
+  /*if (closeness_parameter < 200.f || closeness_parameter > 300.f) {
     std::cerr << "Error: closeness parameter out of range. \n";
     return 1;
-  }
+  }*/
   std::cout << "Insert the distance of separation (values permitted are "
-               "between [40,50]): \n";
+               "between [35,55]): \n";
   float distance_of_separation;
   std::cin >> distance_of_separation;
-  if (distance_of_separation < 40.f || distance_of_separation > 50.f) {
+  /*if (distance_of_separation < 35.f || distance_of_separation > 55.f) {
     std::cerr << "Error: distance of separation out of range. \n";
     return 1;
-  }
+  }*/
   std::cout << "Insert the separation parameter (values permitted are between "
                "[0.6, 1.4]): \n";
   float separation_parameter;
   std::cin >> separation_parameter;
-  if (separation_parameter < 0.6f || separation_parameter > 1.4f) {
+  /*if (separation_parameter < 0.6f || separation_parameter > 1.4f) {
     std::cerr << "Error: separation parameter out of range. \n";
     return 1;
-  }
+  }*/
   std::cout << "Insert the alignment parameter (values permitted are between "
                "[0.3,0.7]): \n";
   float alignment_parameter;
   std::cin >> alignment_parameter;
-  if (alignment_parameter < 0.3f || alignment_parameter > 0.7f) {
+  /*if (alignment_parameter < 0.3f || alignment_parameter > 0.7f) {
     std::cerr << "Error: alignment parameter out of range. \n";
     return 1;
-  }
+  }*/
 
   std::cout << "Insert cohesion_parameter (values permitted are between "
                "[0.01, 0.04]): \n";
   float cohesion_parameter;
   std::cin >> cohesion_parameter;
-  if (cohesion_parameter < 0.01f || cohesion_parameter > 0.04f) {
+  /*if (cohesion_parameter < 0.01f || cohesion_parameter > 0.04f) {
     std::cerr << "Error: cohesion parameter out of range. \n";
     return 1;
-  }
+  }e*/
   std::cout << "Insert number of predators (values permitted are between 0 and "
                "5): \n";
   int num_predators;
   std::cin >> num_predators;
-  if (num_predators < 0 || num_predators > 5) {
+  /*if (num_predators < 0 || num_predators > 5) {
     std::cerr << "Error: predators number out of range. \n";
     return 1;
-  }
+  }*/
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
-                    cohesion_parameter, 120.0f, 50.0f);
+                    cohesion_parameter, 120.0f, 40.0f);
 
   std::random_device rd;
   std::default_random_engine gen(rd());
-  std::uniform_real_distribution<float> x_dist(0.f, width);
-  std::uniform_real_distribution<float> y_dist(0.f, height);
-  std::uniform_real_distribution<float> vel_dist(-100.0f, 100.0f);
+  std::uniform_real_distribution<float> x_dist(0.f, 1200);
+  std::uniform_real_distribution<float> y_dist(0.f, 800);
+  std::uniform_real_distribution<float> vel_dist(-110.0f, 110.0f);
 
   int N_boids;
   std::cout << "Insert the number of boids: ";
@@ -102,16 +101,18 @@ int main() {
 
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
-  
+
+  auto width = sf::VideoMode::getDesktopMode().width;
+  auto height = sf::VideoMode::getDesktopMode().height;
   sf::RenderWindow window(sf::VideoMode(width, height), "Boids Simulation",
                           sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
   sf::ConvexShape boidShape;
   boidShape.setPointCount(3);
-  boidShape.setPoint(0, sf::Vector2f(20.f, 0.f));     
-  boidShape.setPoint(1, sf::Vector2f(-10.f, 10.f));   
-  boidShape.setPoint(2, sf::Vector2f(-10.f, -10.f));  
+  boidShape.setPoint(0, sf::Vector2f(20.f, 0.f));
+  boidShape.setPoint(1, sf::Vector2f(-10.f, 10.f));
+  boidShape.setPoint(2, sf::Vector2f(-10.f, -10.f));
 
   boidShape.setScale(0.5f, 0.5f);
   boidShape.setFillColor(sf::Color::Cyan);
@@ -152,7 +153,7 @@ int main() {
     flock.flock_update(delta_t, width, height);
     flock.predators_update(delta_t, width, height);
 
-    if (step % 100 == 0) { 
+    if (step % 100 == 0) {
       auto stats = flock.state(width, height);
       std::cout << "Step " << step << ": avg_distance = " << stats.avg_distance
                 << " +/- " << stats.dev_distance

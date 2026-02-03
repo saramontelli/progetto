@@ -56,13 +56,13 @@ Vector Boid::cohesion(const std::vector<Boid>& near, float c, float x_max,
                       float y_max) const {
   if (near.empty()) return Vector(0.f, 0.f);
 
-  Vector relative_sum{0.f, 0.f};
+  Vector x_c{0.f, 0.f};
 
   for (const auto& boid : near) {
-    relative_sum += pos_.shortest_delta(boid.get_pos(), x_max, y_max);
+    x_c += boid.get_pos();
   }
-
-  return relative_sum * (c / static_cast<float>(near.size()));
+  x_c = x_c * (1 / static_cast<float>(near.size()));
+  return (x_c - pos_) * c;
 }
 
 void Boid::speed_limit(float vel_max, float vel_min) {

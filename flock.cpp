@@ -58,7 +58,7 @@ Vector Flock::avoid_predators(const Boid& current_boid, float x_max,
     }
   }
   if (nearby_predators.empty()) return Vector(0.f, 0.f);
-  float predator_s = s_ * 5.0f;
+  float predator_s = s_ * 10.f ;
   return current_boid.separation(nearby_predators, predator_s, d_s_, x_max,
                                  y_max);
 }
@@ -80,7 +80,7 @@ Vector Flock::chase_prey(const Boid& predator,
   }
   Vector direction = predator_pos.shortest_delta(
       neighbors[closest_idx].get_pos(), x_max, y_max);
-  return direction * c_;
+  return direction * 0.1f;
 }
 
 void Flock::predators_update(float delta_t, float x_max, float y_max) {
