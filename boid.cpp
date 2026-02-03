@@ -59,8 +59,11 @@ Vector Boid::cohesion(const std::vector<Boid>& near, float c, float x_max,
   Vector x_c{0.f, 0.f};
 
   for (const auto& boid : near) {
-    x_c += boid.get_pos();
+    if (boid.get_pos() == pos_) continue;
+    x_c += pos_.shortest_delta(boid.get_pos(), x_max, y_max) + pos_;
   }
+  size_t n = near.size();
+  if (n == 0) return Vector(0.f, 0.f);
   x_c = x_c * (1 / static_cast<float>(near.size()));
   return (x_c - pos_) * c;
 }
@@ -81,15 +84,15 @@ void Boid::wrap_position(float x_max, float y_max) {
   float y = pos_.get_y();
 
   if (x <= 0.f) {
-    pos_.set_x(x+x_max);
+    pos_.set_x(x + x_max);
   } else if (x >= x_max) {
-    pos_.set_x(x-x_max);
+    pos_.set_x(x - x_max);
   }
 
   if (y <= 0.f) {
-    pos_.set_y(y+y_max);
+    pos_.set_y(y + y_max);
   } else if (y >= y_max) {
-    pos_.set_y(y-y_max);
+    pos_.set_y(y - y_max);
   }
 }
 

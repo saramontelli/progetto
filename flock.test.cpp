@@ -22,10 +22,10 @@ TEST_CASE("testing flock class") {
   const math::Vector r4(5.f, -5.f);
   const math::Vector v4(0.f, -1.f);
 
-  math::Boid boid1(r1, v1, 0);
-  math::Boid boid2(r2, v2, 0);
-  math::Boid boid3(r3, v3, 0);
-  math::Boid boid4(r4, v4, 1);
+  const math::Boid boid1(r1, v1, 0);
+  const math::Boid boid2(r2, v2, 0);
+  const math::Boid boid3(r3, v3, 0);
+  const math::Boid boid4(r4, v4, 1);
 
   const float d = 50.f;
   const float ds = 15.f;
@@ -35,9 +35,8 @@ TEST_CASE("testing flock class") {
   const float max_speed = 10.f;
   const float min_speed = 0.1f;
 
-  math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
-
   SUBCASE("Testing add_boids and getters") {
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);
@@ -54,6 +53,7 @@ TEST_CASE("testing flock class") {
   }
 
   SUBCASE("Testing flock_separation") {
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);
@@ -83,12 +83,11 @@ TEST_CASE("testing flock class") {
   }
 
   SUBCASE("Testing flock_alignment method") {
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);
     flock.add_boids(boid4);
-
-    auto flock_boids = flock.get_flock();
 
     auto neighbors_b1 = boid1.get_neighbors(flock.get_flock(), d, x_max, y_max);
     auto neighbors_b2 = boid2.get_neighbors(flock.get_flock(), d, x_max, y_max);
@@ -108,12 +107,11 @@ TEST_CASE("testing flock class") {
   }
 
   SUBCASE("Testing flock_cohesion") {
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);
     flock.add_boids(boid4);
-
-    auto flock_boids = flock.get_flock();
 
     auto neighbors_b1 = boid1.get_neighbors(flock.get_flock(), d, x_max, y_max);
     auto neighbors_b2 = boid2.get_neighbors(flock.get_flock(), d, x_max, y_max);
@@ -133,31 +131,29 @@ TEST_CASE("testing flock class") {
   }
 
   SUBCASE("Testing avoid_predators method") {
-    math::Boid boid_1(math::Vector(0.f, 0.f), math::Vector(1.f, 0.f), 0);
-    math::Boid boid_2(math::Vector(5.f, 0.f), math::Vector(0.f, 1.f), 0);
-    math::Boid boid_3(math::Vector(10.f, 0.f), math::Vector(-1.f, 0.f), 0);
-    math::Boid boid_4(math::Vector(5.f, 5.f), math::Vector(0.f, -1.f), 1);
-
-    flock.add_boids(boid_1);
-    flock.add_boids(boid_2);
-    flock.add_boids(boid_3);
-    flock.add_boids(boid_4);
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
+    
+    flock.add_boids(boid1);
+    flock.add_boids(boid2);
+    flock.add_boids(boid3);
+    flock.add_boids(boid4);
 
     math::Vector avoid1 = flock.avoid_predators(boid1, x_max, y_max);
     math::Vector avoid2 = flock.avoid_predators(boid2, x_max, y_max);
     math::Vector avoid3 = flock.avoid_predators(boid3, x_max, y_max);
 
-    CHECK(avoid1.get_x() == doctest::Approx(-12.5f).epsilon(0.1));
-    CHECK(avoid1.get_y() == doctest::Approx(-12.5f).epsilon(0.1));
+    CHECK(avoid1.get_x() == doctest::Approx(-25.f).epsilon(0.1));
+    CHECK(avoid1.get_y() == doctest::Approx(25.f).epsilon(0.1));
 
-    CHECK(avoid2.get_x() == doctest::Approx(0.f).epsilon(0.1));
-    CHECK(avoid2.get_y() == doctest::Approx(-12.5f).epsilon(0.1));
+    CHECK(avoid2.get_x() == doctest::Approx(25.f).epsilon(0.1));
+    CHECK(avoid2.get_y() == doctest::Approx(50.f).epsilon(0.1));
 
-    CHECK(avoid3.get_x() == doctest::Approx(12.5f).epsilon(0.1));
-    CHECK(avoid3.get_y() == doctest::Approx(12.5f).epsilon(0.1));
+    CHECK(avoid3.get_x() == doctest::Approx(0.0f).epsilon(0.1));
+    CHECK(avoid3.get_y() == doctest::Approx(0.0f).epsilon(0.1));
   }
 
   SUBCASE("Testing chase_prey method") {
+    math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);
@@ -168,8 +164,8 @@ TEST_CASE("testing flock class") {
     math::Vector chase_vec =
         flock.chase_prey(boid4, neighbors_pred, x_max, y_max);
 
-    CHECK(chase_vec.get_x() == doctest::Approx(-1.0).epsilon(0.1));
-    CHECK(chase_vec.get_y() == doctest::Approx(-1.5).epsilon(0.1));
+    CHECK(chase_vec.get_x() == doctest::Approx(-0.5).epsilon(0.1));
+    CHECK(chase_vec.get_y() == doctest::Approx(0.5).epsilon(0.1));
   }
 
   SUBCASE("Testing flock state") {
