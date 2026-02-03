@@ -13,8 +13,8 @@ TEST_CASE("Testing Get_...()") {
 
 TEST_CASE("Testing Set_...()") {
   math::Vector w{7.31f, 6.98f};
-  w.set_x(4.53);
-  w.set_y(6.72);
+  w.set_x(4.53f);
+  w.set_y(6.72f);
 
   CHECK(w.get_x() == doctest::Approx(4.53).epsilon(0.1));
   CHECK(w.get_y() == doctest::Approx(6.72).epsilon(0.1));
