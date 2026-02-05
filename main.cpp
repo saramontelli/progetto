@@ -13,59 +13,59 @@ int main() {
   std::cout << "2. Click P button to add a predator.\n";
   std::cout << "3. Finally, close the window to stop the simulation.\n";
 
-  //const float width = 1200.f;
-  //const float height = 800.f;
+  const float width = 1200.f;
+  const float height = 800.f;
 
   std::cout << "Insert the following parameters: \n";
   std::cout << "Insert the closeness parameter (values permitted are between "
                "[200,300]) : \n";
   float closeness_parameter;
   std::cin >> closeness_parameter;
-  /*if (closeness_parameter < 200.f || closeness_parameter > 300.f) {
+  if (closeness_parameter < 200.f || closeness_parameter > 300.f) {
     std::cerr << "Error: closeness parameter out of range. \n";
     return 1;
-  }*/
+  }
   std::cout << "Insert the distance of separation (values permitted are "
-               "between [35,55]): \n";
+               "between [30,45]): \n";
   float distance_of_separation;
   std::cin >> distance_of_separation;
-  /*if (distance_of_separation < 35.f || distance_of_separation > 55.f) {
+  if (distance_of_separation < 30.f || distance_of_separation > 45.f) {
     std::cerr << "Error: distance of separation out of range. \n";
     return 1;
-  }*/
+  }
   std::cout << "Insert the separation parameter (values permitted are between "
-               "[0.6, 1.4]): \n";
+               "[0.6, 1.2]): \n";
   float separation_parameter;
   std::cin >> separation_parameter;
-  /*if (separation_parameter < 0.6f || separation_parameter > 1.4f) {
+  if (separation_parameter < 0.6f || separation_parameter > 1.2f) {
     std::cerr << "Error: separation parameter out of range. \n";
     return 1;
-  }*/
+  }
   std::cout << "Insert the alignment parameter (values permitted are between "
-               "[0.3,0.7]): \n";
+               "[0.04,0.09]): \n";
   float alignment_parameter;
   std::cin >> alignment_parameter;
-  /*if (alignment_parameter < 0.3f || alignment_parameter > 0.7f) {
+  if (alignment_parameter < 0.04f || alignment_parameter > 0.09f) {
     std::cerr << "Error: alignment parameter out of range. \n";
     return 1;
-  }*/
+  }
 
   std::cout << "Insert cohesion_parameter (values permitted are between "
-               "[0.01, 0.04]): \n";
+               "[0.005, 0.01]): \n";
   float cohesion_parameter;
   std::cin >> cohesion_parameter;
-  /*if (cohesion_parameter < 0.01f || cohesion_parameter > 0.04f) {
+  if (cohesion_parameter < 0.005f || cohesion_parameter > 0.01f) {
     std::cerr << "Error: cohesion parameter out of range. \n";
     return 1;
-  }e*/
+  }
   std::cout << "Insert number of predators (values permitted are between 0 and "
                "5): \n";
   int num_predators;
   std::cin >> num_predators;
-  /*if (num_predators < 0 || num_predators > 5) {
+  if (num_predators < 0 || num_predators > 5) {
     std::cerr << "Error: predators number out of range. \n";
     return 1;
-  }*/
+  }
 
   math::Flock flock(closeness_parameter, distance_of_separation,
                     separation_parameter, alignment_parameter,
@@ -78,11 +78,14 @@ int main() {
   std::uniform_real_distribution<float> vel_dist(-110.0f, 110.0f);
 
   int N_boids;
-  std::cout << "Insert the number of boids: ";
+  std::cout << "Insert the number of boids (values permitted are between 1 and 60) \n";
   std::cin >> N_boids;
   if (N_boids < 1) {
     std::cerr << "Error: number of boids must be >=1 \n";
     return 1;
+  if (N_boids > 60) {
+    std::cerr << "Error: number of boids must be <= 60 \n";
+  }
   }
 
   for (int i = 0; i < N_boids; ++i) {
@@ -102,8 +105,6 @@ int main() {
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
 
-  auto width = sf::VideoMode::getDesktopMode().width;
-  auto height = sf::VideoMode::getDesktopMode().height;
   sf::RenderWindow window(sf::VideoMode(width, height), "Boids Simulation",
                           sf::Style::Default, settings);
   window.setFramerateLimit(60);

@@ -15,7 +15,7 @@ Flock::Flock(const float d, const float ds, const float s, const float a,
       a_(a),
       c_(c),
       vel_max(max_speed),
-      vel_min(min_speed) {};
+      vel_min(min_speed){};
 
 void Flock::add_boids(const Boid& new_boid) {
   if (new_boid.get_predator()) {
@@ -58,7 +58,7 @@ Vector Flock::avoid_predators(const Boid& current_boid, float x_max,
     }
   }
   if (nearby_predators.empty()) return Vector(0.f, 0.f);
-  float predator_s = s_ * 10.f ;
+  float predator_s = s_ * 10.f;
   return current_boid.separation(nearby_predators, predator_s, d_s_, x_max,
                                  y_max);
 }
@@ -155,7 +155,7 @@ FlockStats Flock::state(float x_max, float y_max) const {
   stats.avg_distance = sum_dist / static_cast<float>(n_pairs);
   float var_dist = sum_dist2 / static_cast<float>(n_pairs) -
                    stats.avg_distance * stats.avg_distance;
-  stats.dev_distance = std::sqrt(var_dist);
+  stats.dev_distance = std::sqrt(std::max(0.0f, var_dist));
 
   float sum_vel = 0.f;
   float sum_vel2 = 0.f;
@@ -168,7 +168,7 @@ FlockStats Flock::state(float x_max, float y_max) const {
   stats.avg_velocity = sum_vel / static_cast<float>(N);
   float var_vel = sum_vel2 / static_cast<float>(N) -
                   stats.avg_velocity * stats.avg_velocity;
-  stats.dev_velocity = std::sqrt(var_vel);
+  stats.dev_velocity = std::sqrt(std::max(0.0f, var_vel));
 
   return stats;
 }
