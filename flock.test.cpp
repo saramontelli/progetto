@@ -132,7 +132,7 @@ TEST_CASE("testing flock class") {
 
   SUBCASE("Testing avoid_predators method") {
     math::Flock flock(d, ds, s, a, c, max_speed, min_speed);
-    
+
     flock.add_boids(boid1);
     flock.add_boids(boid2);
     flock.add_boids(boid3);

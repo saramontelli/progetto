@@ -117,7 +117,7 @@ TEST_CASE("Testing Boid Class") {
   }
 
   SUBCASE("Testing the speed limit method") {
-     boid1.speed_limit(5.0f, 1.0f);
+    boid1.speed_limit(5.0f, 1.0f);
     boid2.speed_limit(6.0f, 3.0f);
     boid3.speed_limit(5.0f, 1.0f);
     boid4.speed_limit(5.0f, 3.0f);

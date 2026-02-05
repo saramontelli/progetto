@@ -213,7 +213,7 @@ TEST_CASE("testing shortest_delta") {
 
     const math::Vector d = w.shortest_delta(t, x_max, y_max);
     CHECK(d.get_x() == doctest::Approx(1.0).epsilon(0.1));
-    CHECK(d.get_y() == doctest::Approx(0.7).epsilon(0.1)); 
+    CHECK(d.get_y() == doctest::Approx(0.7).epsilon(0.1));
   }
 
   SUBCASE("Zero delta") {
@@ -225,7 +225,6 @@ TEST_CASE("testing shortest_delta") {
     CHECK(d.get_y() == doctest::Approx(0.0).epsilon(0.1));
   }
 }
-
 
 TEST_CASE("testing distance") {
   const float x_max = 10.f;

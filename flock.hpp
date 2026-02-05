@@ -27,15 +27,21 @@ class Flock {
         const float c, const float max_speed, const float min_speed);
   void add_boids(const Boid& new_boid);
 
- const std::vector<Boid>& get_flock() const;
- const std::vector<Boid>& get_predators() const;
+  const std::vector<Boid>& get_flock() const;
+  const std::vector<Boid>& get_predators() const;
 
-  Vector flock_separation(const Boid& current_boid, const std::vector<Boid>& neighbors, float x_max, float y_max) const;
-  Vector flock_alignment(const Boid& current_boid, const std::vector<Boid>& flock_neighbors) const;
-  Vector flock_cohesion(const Boid& current_boid, const std::vector<Boid>& flock_neighbors, float x_max, float y_max) const;
+  Vector flock_separation(const Boid& current_boid,
+                          const std::vector<Boid>& neighbors, float x_max,
+                          float y_max) const;
+  Vector flock_alignment(const Boid& current_boid,
+                         const std::vector<Boid>& flock_neighbors) const;
+  Vector flock_cohesion(const Boid& current_boid,
+                        const std::vector<Boid>& flock_neighbors, float x_max,
+                        float y_max) const;
 
   Vector avoid_predators(const Boid&, float x_max, float y_max) const;
-  Vector chase_prey(const Boid&, const std::vector<Boid>& flock_neighbors, float x_max, float y_max);
+  Vector chase_prey(const Boid&, const std::vector<Boid>& flock_neighbors,
+                    float x_max, float y_max);
 
   void predators_update(float delta_t, float x_max, float y_max);
   void flock_update(float delta_t, float x_max, float y_max);

@@ -78,14 +78,15 @@ int main() {
   std::uniform_real_distribution<float> vel_dist(-110.0f, 110.0f);
 
   int N_boids;
-  std::cout << "Insert the number of boids (values permitted are between 1 and 60) \n";
+  std::cout << "Insert the number of boids (values permitted are between 1 and "
+               "60) \n";
   std::cin >> N_boids;
   if (N_boids < 1) {
     std::cerr << "Error: number of boids must be >=1 \n";
     return 1;
-  if (N_boids > 60) {
-    std::cerr << "Error: number of boids must be <= 60 \n";
-  }
+    if (N_boids > 60) {
+      std::cerr << "Error: number of boids must be <= 60 \n";
+    }
   }
 
   for (int i = 0; i < N_boids; ++i) {
@@ -137,7 +138,8 @@ int main() {
         if (event.key.code == sf::Keyboard::B) {
           math::Boid newBoid(random_pos, random_vel, false);
           flock.add_boids(newBoid);
-          std::cout << "Added new boid" << "\n";
+          std::cout << "Added new boid"
+                    << "\n";
         }
 
         if (event.key.code == sf::Keyboard::P) {

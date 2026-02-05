@@ -38,7 +38,7 @@ int main() {
   while (time_passed < simulation_time) {
     time_passed += delta_t;
     flock.flock_update(delta_t, world_X, world_Y);
-    
+
     if (time_passed - last_save >= 0.5f) {
       const math::FlockStats flock_state = flock.state(world_X, world_Y);
       output_file << time_passed << " " << flock_state.avg_distance << " "
